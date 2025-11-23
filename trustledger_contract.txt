@@ -1,0 +1,193 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+contract TrustLedger {
+    
+    // Roles
+    enum Role { User, Bank, Admin }
+    
+    // KYC Status
+    enum KYCStatus { Pending, Verified, Rejected }
+    
+    // Structs
+    struct User {
+        address userAddress;
+        bytes32 kycHash;
+        KYCStatus status;
+        uint256 timestamp;
+        bool exists;
+    }
+    
+    struct AccessRequest {
+        address bank;
+        address user;
+        bool approved;
+        uint256 requestTime;
+        uint256 responseTime;
+    }
+    
+    // State variables
+    mapping(address => User) public users;
+    mapping(address => Role) public roles;
+    mapping(address => mapping(address => bool)) public accessPermissions; // user => bank => hasAccess
+    mapping(bytes32 => AccessRequest) public accessRequests; // requestId => AccessRequest
+    
+    address public admin;
+    address[] public registeredUsers;
+    address[] public registeredBanks;
+    
+    // Events
+    event UserRegistered(address indexed user, bytes32 kycHash, uint256 timestamp);
+    event KYCVerified(address indexed user, address indexed verifier, uint256 timestamp);
+    event KYCRejected(address indexed user, address indexed verifier, uint256 timestamp);
+    event AccessRequested(bytes32 indexed requestId, address indexed bank, address indexed user, uint256 timestamp);
+    event AccessGranted(address indexed user, address indexed bank, uint256 timestamp);
+    event AccessRevoked(address indexed user, address indexed bank, uint256 timestamp);
+    event BankRegistered(address indexed bank, uint256 timestamp);
+    event RoleAssigned(address indexed account, Role role, uint256 timestamp);
+    
+    // Modifiers
+    modifier onlyAdmin() {
+        require(roles[msg.sender] == Role.Admin, "Only admin can perform this action");
+        _;
+    }
+    
+    modifier onlyBank() {
+        require(roles[msg.sender] == Role.Bank, "Only banks can perform this action");
+        _;
+    }
+    
+    modifier onlyUser() {
+        require(roles[msg.sender] == Role.User, "Only users can perform this action");
+        _;
+    }
+    
+    modifier userExists(address _user) {
+        require(users[_user].exists, "User does not exist");
+        _;
+    }
+    
+    constructor() {
+        admin = msg.sender;
+        roles[msg.sender] = Role.Admin;
+        emit RoleAssigned(msg.sender, Role.Admin, block.timestamp);
+    }
+    
+    // Admin Functions
+    function registerBank(address _bank) external onlyAdmin {
+        require(roles[_bank] != Role.Bank, "Already registered as bank");
+        roles[_bank] = Role.Bank;
+        registeredBanks.push(_bank);
+        emit BankRegistered(_bank, block.timestamp);
+        emit RoleAssigned(_bank, Role.Bank, block.timestamp);
+    }
+    
+    function removeBank(address _bank) external onlyAdmin {
+        require(roles[_bank] == Role.Bank, "Not a registered bank");
+        roles[_bank] = Role.User;
+    }
+    
+    // User Functions
+    function registerKYC(bytes32 _kycHash) external {
+        require(!users[msg.sender].exists, "User already registered");
+        require(_kycHash != bytes32(0), "Invalid KYC hash");
+        
+        roles[msg.sender] = Role.User;
+        
+        users[msg.sender] = User({
+            userAddress: msg.sender,
+            kycHash: _kycHash,
+            status: KYCStatus.Pending,
+            timestamp: block.timestamp,
+            exists: true
+        });
+        
+        registeredUsers.push(msg.sender);
+        
+        emit UserRegistered(msg.sender, _kycHash, block.timestamp);
+    }
+    
+    function updateKYCHash(bytes32 _newKycHash) external onlyUser userExists(msg.sender) {
+        require(_newKycHash != bytes32(0), "Invalid KYC hash");
+        users[msg.sender].kycHash = _newKycHash;
+        users[msg.sender].status = KYCStatus.Pending;
+        users[msg.sender].timestamp = block.timestamp;
+        
+        emit UserRegistered(msg.sender, _newKycHash, block.timestamp);
+    }
+    
+    function grantAccess(address _bank) external onlyUser userExists(msg.sender) {
+        require(roles[_bank] == Role.Bank, "Not a registered bank");
+        accessPermissions[msg.sender][_bank] = true;
+        emit AccessGranted(msg.sender, _bank, block.timestamp);
+    }
+    
+    function revokeAccess(address _bank) external onlyUser userExists(msg.sender) {
+        accessPermissions[msg.sender][_bank] = false;
+        emit AccessRevoked(msg.sender, _bank, block.timestamp);
+    }
+    
+    // Bank Functions
+    function requestAccess(address _user) external onlyBank userExists(_user) returns (bytes32) {
+        bytes32 requestId = keccak256(abi.encodePacked(msg.sender, _user, block.timestamp));
+        
+        accessRequests[requestId] = AccessRequest({
+            bank: msg.sender,
+            user: _user,
+            approved: false,
+            requestTime: block.timestamp,
+            responseTime: 0
+        });
+        
+        emit AccessRequested(requestId, msg.sender, _user, block.timestamp);
+        return requestId;
+    }
+    
+    function verifyKYC(address _user, bool _approve) external onlyBank userExists(_user) {
+        require(accessPermissions[_user][msg.sender], "Access not granted by user");
+        
+        if (_approve) {
+            users[_user].status = KYCStatus.Verified;
+            emit KYCVerified(_user, msg.sender, block.timestamp);
+        } else {
+            users[_user].status = KYCStatus.Rejected;
+            emit KYCRejected(_user, msg.sender, block.timestamp);
+        }
+    }
+    
+    function getUserKYC(address _user) external view onlyBank userExists(_user) returns (
+        bytes32 kycHash,
+        KYCStatus status,
+        uint256 timestamp
+    ) {
+        require(accessPermissions[_user][msg.sender], "Access not granted by user");
+        User memory user = users[_user];
+        return (user.kycHash, user.status, user.timestamp);
+    }
+    
+    // Public View Functions
+    function verifyHash(address _user, bytes32 _hash) external view returns (bool) {
+        if (!users[_user].exists) return false;
+        return users[_user].kycHash == _hash;
+    }
+    
+    function getUserStatus(address _user) external view userExists(_user) returns (KYCStatus) {
+        return users[_user].status;
+    }
+    
+    function hasAccess(address _user, address _bank) external view returns (bool) {
+        return accessPermissions[_user][_bank];
+    }
+    
+    function getRegisteredUsersCount() external view returns (uint256) {
+        return registeredUsers.length;
+    }
+    
+    function getRegisteredBanksCount() external view returns (uint256) {
+        return registeredBanks.length;
+    }
+    
+    function getRole(address _account) external view returns (Role) {
+        return roles[_account];
+    }
+}
