@@ -369,3 +369,9 @@ Solidity smart contracts
 IPFS decentralized storage
 SHA-256 cryptographic hashing
 Event-driven architecture.
+
+
+The emergent app link is:- https://trust-ledger-4.preview.emergentagent.com/
+
+
+The vs code link is:- https://vscode-88a2cb13-be3c-4901-b364-6e33ff3c2928.preview.emergentagent.com/
