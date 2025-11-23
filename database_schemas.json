@@ -1,0 +1,259 @@
+{
+  "users": {
+    "collection": "users",
+    "schema": {
+      "_id": "ObjectId",
+      "walletAddress": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+      "role": "user",
+      "email": "user@example.com",
+      "phoneNumber": "+91-9876543210",
+      "kycStatus": "verified",
+      "registeredAt": "2025-01-15T14:32:18.000Z",
+      "lastLogin": "2025-01-20T10:15:30.000Z",
+      "profileComplete": true,
+      "notifications": {
+        "email": true,
+        "sms": false,
+        "push": true
+      }
+    },
+    "indexes": [
+      { "walletAddress": 1, "unique": true },
+      { "email": 1 },
+      { "kycStatus": 1 }
+    ]
+  },
+
+  "banks": {
+    "collection": "banks",
+    "schema": {
+      "_id": "ObjectId",
+      "walletAddress": "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
+      "bankName": "HDFC Bank",
+      "bankCode": "HDFC0001",
+      "registrationNumber": "REG123456",
+      "contactEmail": "kyc@hdfcbank.com",
+      "contactPhone": "+91-1800-123-4567",
+      "address": {
+        "street": "123 Banking Street",
+        "city": "Mumbai",
+        "state": "Maharashtra",
+        "country": "India",
+        "postalCode": "400001"
+      },
+      "verified": true,
+      "registeredAt": "2024-12-01T09:00:00.000Z",
+      "totalVerifications": 1247,
+      "successRate": 96.2,
+      "status": "active"
+    },
+    "indexes": [
+      { "walletAddress": 1, "unique": true },
+      { "bankCode": 1, "unique": true },
+      { "status": 1 }
+    ]
+  },
+
+  "kyc_metadata": {
+    "collection": "kyc_metadata",
+    "schema": {
+      "_id": "ObjectId",
+      "userAddress": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+      "documentType": "aadhaar",
+      "documentHash": "0x7f8e2c1a4b6d9e3f5a8c2b1d7e9f4a6c8b2d1e7f9a4c6b8d2e1f7a9c4b6d8e2f1",
+      "ipfsCID": "QmX4e7u8t2Ks9vW3nH5pL7mR4qB2cE8dF1aG6jI9kO3sT2",
+      "encryptionKey": "encrypted_aes_key_here",
+      "fileName": "aadhaar_document.pdf",
+      "fileSize": 2456789,
+      "mimeType": "application/pdf",
+      "uploadedAt": "2025-01-15T14:32:18.000Z",
+      "blockchainTxHash": "0xabc123def456789...",
+      "blockNumber": 12345678,
+      "status": "verified",
+      "verificationDetails": {
+        "verifiedBy": "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
+        "verifiedAt": "2025-01-15T16:45:22.000Z",
+        "verificationNotes": "All details verified successfully"
+      },
+      "metadata": {
+        "documentNumber": "XXXX-XXXX-1234",
+        "issuedDate": "2020-05-15",
+        "expiryDate": null,
+        "issuerAuthority": "UIDAI"
+      },
+      "accessHistory": [
+        {
+          "bankAddress": "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
+          "accessTime": "2025-01-15T16:30:00.000Z",
+          "purpose": "loan_application"
+        }
+      ]
+    },
+    "indexes": [
+      { "userAddress": 1 },
+      { "documentHash": 1, "unique": true },
+      { "ipfsCID": 1 },
+      { "status": 1 },
+      { "uploadedAt": -1 }
+    ]
+  },
+
+  "access_requests": {
+    "collection": "access_requests",
+    "schema": {
+      "_id": "ObjectId",
+      "requestId": "0x7a8b9c0d1e2f3g4h5i6j7k8l9m0n1o2p3q4r5s6t7u8v9w0x1y2z3a4b5c6d7e8f9",
+      "bankAddress": "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
+      "bankName": "HDFC Bank",
+      "userAddress": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+      "requestType": "kyc_verification",
+      "purpose": "home_loan_application",
+      "status": "approved",
+      "requestedAt": "2025-01-15T15:00:00.000Z",
+      "respondedAt": "2025-01-15T15:15:30.000Z",
+      "expiresAt": "2025-02-15T15:15:30.000Z",
+      "accessLevel": "full",
+      "documentsRequested": ["aadhaar", "pan", "bank_statement"],
+      "blockchainTxHash": "0xdef456789abc123...",
+      "ipAddress": "103.21.58.194",
+      "userAgent": "Mozilla/5.0...",
+      "notes": "Request for home loan processing"
+    },
+    "indexes": [
+      { "requestId": 1, "unique": true },
+      { "bankAddress": 1 },
+      { "userAddress": 1 },
+      { "status": 1 },
+      { "requestedAt": -1 },
+      { "expiresAt": 1 }
+    ]
+  },
+
+  "access_logs": {
+    "collection": "access_logs",
+    "schema": {
+      "_id": "ObjectId",
+      "logId": "log_1234567890",
+      "userAddress": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+      "bankAddress": "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
+      "action": "view_document",
+      "documentHash": "0x7f8e2c1a4b6d9e3f5a8c2b1d7e9f4a6c8b2d1e7f9a4c6b8d2e1f7a9c4b6d8e2f1",
+      "timestamp": "2025-01-15T16:30:45.000Z",
+      "ipAddress": "103.21.58.194",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)...",
+      "accessGranted": true,
+      "sessionId": "sess_abc123def456",
+      "duration": 245,
+      "dataAccessed": {
+        "fields": ["name", "address", "documentNumber"],
+        "fullDocument": false
+      },
+      "blockchainVerified": true,
+      "geolocation": {
+        "country": "India",
+        "city": "Mumbai",
+        "coordinates": {
+          "lat": 19.0760,
+          "lon": 72.8777
+        }
+      }
+    },
+    "indexes": [
+      { "userAddress": 1, "timestamp": -1 },
+      { "bankAddress": 1, "timestamp": -1 },
+      { "action": 1 },
+      { "timestamp": -1 }
+    ]
+  },
+
+  "blockchain_events": {
+    "collection": "blockchain_events",
+    "schema": {
+      "_id": "ObjectId",
+      "eventType": "UserRegistered",
+      "transactionHash": "0xabc123def456789...",
+      "blockNumber": 12345678,
+      "blockTimestamp": "2025-01-15T14:32:18.000Z",
+      "contractAddress": "0x1234567890abcdef...",
+      "eventData": {
+        "user": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+        "kycHash": "0x7f8e2c1a4b6d9e3f...",
+        "timestamp": 1705329138
+      },
+      "gasUsed": 156789,
+      "gasPrice": "25000000000",
+      "status": "success",
+      "confirmations": 50
+    },
+    "indexes": [
+      { "transactionHash": 1, "unique": true },
+      { "eventType": 1 },
+      { "blockNumber": -1 },
+      { "blockTimestamp": -1 }
+    ]
+  },
+
+  "verification_history": {
+    "collection": "verification_history",
+    "schema": {
+      "_id": "ObjectId",
+      "userAddress": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+      "bankAddress": "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
+      "verificationId": "ver_1234567890",
+      "documentHash": "0x7f8e2c1a4b6d9e3f...",
+      "verificationStatus": "approved",
+      "verificationDate": "2025-01-15T16:45:22.000Z",
+      "verifiedBy": "kyc_officer_123",
+      "verificationType": "automated",
+      "confidenceScore": 98.5,
+      "checks": {
+        "documentAuthenticity": "pass",
+        "faceMatch": "pass",
+        "addressVerification": "pass",
+        "blockchainVerification": "pass"
+      },
+      "remarks": "All verification checks passed successfully",
+      "expiryDate": "2026-01-15T16:45:22.000Z",
+      "renewalRequired": false,
+      "blockchainTxHash": "0x789abc123def456..."
+    },
+    "indexes": [
+      { "userAddress": 1, "verificationDate": -1 },
+      { "bankAddress": 1 },
+      { "verificationStatus": 1 },
+      { "expiryDate": 1 }
+    ]
+  },
+
+  "audit_trail": {
+    "collection": "audit_trail",
+    "schema": {
+      "_id": "ObjectId",
+      "auditId": "audit_1234567890",
+      "entityType": "user",
+      "entityId": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+      "action": "kyc_document_updated",
+      "performedBy": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+      "performedAt": "2025-01-15T14:32:18.000Z",
+      "ipAddress": "103.21.58.194",
+      "userAgent": "Mozilla/5.0...",
+      "changes": {
+        "field": "documentHash",
+        "oldValue": "0xold_hash...",
+        "newValue": "0xnew_hash..."
+      },
+      "metadata": {
+        "reason": "document_renewal",
+        "approvedBy": "system"
+      },
+      "severity": "medium",
+      "blockchainSynced": true
+    },
+    "indexes": [
+      { "entityId": 1, "performedAt": -1 },
+      { "action": 1 },
+      { "performedAt": -1 },
+      { "severity": 1 }
+    ]
+  }
+}
