@@ -646,5 +646,28 @@ const TrustLedgerApp = () => {
                 </div>
               </div>
 
-              <div className="p-5 bg-indigo-50 rounded-xl border border-indigo-200">
-                <div className="flex
+                <div className="p-5 bg-indigo-50 rounded-xl border border-indigo-200">
+                  <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-indigo-700">KYC Verification Complete</p>
+                    <p className="text-sm text-indigo-600">Your identity is successfully validated</p>
+                  </div>
+                </div>
+              </div>
