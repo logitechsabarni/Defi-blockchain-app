@@ -668,6 +668,12 @@ const TrustLedgerApp = () => {
                   <div>
                     <p className="font-semibold text-indigo-700">KYC Verification Complete</p>
                     <p className="text-sm text-indigo-600">Your identity is successfully validated</p>
-                  </div>
-                </div>
-              </div>
+                  </div>  {/* close inner wrapper */}
+                </div>    {/* close container */}
+              </div>      {/* close page wrapper */}
+            </div>        {/* close main wrapper */}
+          </div>          {/* close whole layout */}
+  );
+};
+
+export default App;
